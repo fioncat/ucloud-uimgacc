@@ -82,8 +82,8 @@ config = {
     "RetCode": 0,
     "Enable": true,  // 是否开启了镜像加速
     "NfsReady": true, // 镜像加速使用的UFS是否就绪
-    "AgentReady": true,  // 镜像加速agent是否就绪，如果不就绪，将无法进行查看、创建、删除操作。这时请检查您的集群中`kube-system/uimgacc-agent`这个Deployment的状态。
-    "Status": "Ready", // 镜像加速状态。有几种枚举值：Ready(正常)，Creating(正在创建目标镜像)，CreateError(创建失败)，Deleting(正在删除)，DeleteError(删除失败)，Unknown(未知，如果agent未就绪或是有其他异常，将会是这个状态)
+    "AgentReady": true,  // 镜像加速agent是否就绪，如果不就绪，将无法进行查看、创建、删除操作。这时请检查您的集群中`kube-system/uimgacc-agent`这个Deployment的状态。注意，在刚开启镜像加速时，agent需要时间初始化，这时候这里为false为正常现象。
+    "Status": "Ready", // 镜像加速状态。有几种枚举值：Ready(正常)，Creating(正在创建目标镜像)，CreateError(创建失败)，Deleting(正在删除)，DeleteError(删除失败)，Unknown(未知，这表示agent未就绪或是有其他异常，这时请检查agent状态)
     "Error": "", // 当创建或删除失败时，这里会显示错误信息
     "Images": [  // 目前已经预加载的镜像列表，在创建和删除过程中，或是agent还没有就绪时，这里会强制为空
         {
