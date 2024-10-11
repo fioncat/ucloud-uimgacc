@@ -28,6 +28,9 @@
 - 您需要加速镜像的UHub用户名和密码（需要有推送权限）。
 - 在UCloud控制台创建的API公钥和私钥。
 
+> [!IMPORTANT]
+> 在使用镜像加速的过程中，切勿更改或删除UFS，最好不要动里面的任何文件，否则可能会导致容器出现IO错误或节点NotReady！
+
 此外，需要在您的机器上面准备好一个python3环境。
 
 克隆本项目到您的机器上面，进入项目并准备好python环境：
@@ -79,10 +82,10 @@ config = {
     "RetCode": 0,
     "Enable": true,  // 是否开启了镜像加速
     "NfsReady": true, // 镜像加速使用的UFS是否就绪
-    "AgentReady": true,  // 镜像加速agent是否就绪，如果不就绪，将无法进行查看、预加载、删除等操作。这时请检查您的集群中`kube-system/uimgacc-agent`这个Deployment的状态。
+    "AgentReady": true,  // 镜像加速agent是否就绪，如果不就绪，将无法进行查看、创建、删除操作。这时请检查您的集群中`kube-system/uimgacc-agent`这个Deployment的状态。
     "Status": "Ready", // 镜像加速状态。有几种枚举值：Ready(正常)，Creating(正在创建目标镜像)，CreateError(创建失败)，Deleting(正在删除)，DeleteError(删除失败)，Unknown(未知，如果agent未就绪或是有其他异常，将会是这个状态)
     "Error": "", // 当创建或删除失败时，这里会显示错误信息
-    "Images": [  // 目前已经预加载的镜像列表，在创建和删除过程中，或是agent还没有就绪时，这里会为空
+    "Images": [  // 目前已经预加载的镜像列表，在创建和删除过程中，或是agent还没有就绪时，这里会强制为空
         {
             "OriginalImage": "uhub.service.ucloud.cn/testuk8s-wenqian/bigfile:latest",  // 原始镜像
             "TargetImage": "uhub.service.ucloud.cn/testuk8s-wenqian/bigfile:latest-acc", // 目标镜像
