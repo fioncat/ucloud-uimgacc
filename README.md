@@ -33,8 +33,10 @@
 克隆本项目到您的机器上面，进入项目并准备好python环境：
 
 ```bash
-python -m venv ./venv
-./venv/bin/pip install ucloud-sdk-python3
+git clone https://github.com/fioncat/ulcoud-uimgacc.git /path/to/ucloud-uimgacc
+cd /path/to/ucloud-uimgacc
+python3 -m venv ./venv
+./venv/bin/pip3 install -r requirements.txt
 ```
 
 编辑[uimgacc.py](uimgacc.py)文件，在`config`那里根据情况填入您的配置：
@@ -60,31 +62,31 @@ config = {
 完成上面的准备工作之后，通过下面的命令来开启镜像加速：
 
 ```bash
-./venv/bin/python uimgacc.py enable
+./venv/bin/python3 uimgacc.py enable
 ```
 
 开启之后，使用`get`命令可以查看开启状态：
 
 ```bash
-./venv/bin/python uimgacc.py get
+./venv/bin/python3 uimgacc.py get
 ```
 
 当您需要对某个镜像进行加速，需要将其预加载到UFS中，执行下面的命令：
 
 ```bash
-./venv/bin/python uimgacc.py create <original_image> <target_image>
+./venv/bin/python3 uimgacc.py create <original_image> <target_image>
 ```
 
 镜像加速会占据您的UFS空间，如果某个镜像不再使用了，可以通过`delete`命令来删除它以释放UFS：
 
 ```bash
-./venv/bin/python uimgacc.py delete <original_image>
+./venv/bin/python3 uimgacc.py delete <original_image>
 ```
 
 当您不再需要使用镜像加速，使用下面的命令来关闭：
 
 ```bash
-./venv/bin/python uimgacc.py disable
+./venv/bin/python3 uimgacc.py disable
 ```
 
 ## 使用镜像加速
