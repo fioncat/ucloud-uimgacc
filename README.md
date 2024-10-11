@@ -58,8 +58,6 @@ config = {
 ./venv/bin/python uimgacc.py create <original_image> <target_image>
 ```
 
-加速过程需要一定时间来执行，在执行完`create`之后，您需要不断轮询执行`get`来查看加速是否完成，完成之后`get`命令会输出加速完毕的镜像名称。如果出现错误，`get`命令也会输出错误信息。
-
 镜像加速会占据您的UFS空间，如果某个镜像不再使用了，可以通过`delete`命令来删除它以释放UFS：
 
 ```bash

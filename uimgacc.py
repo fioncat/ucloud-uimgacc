@@ -1,6 +1,7 @@
 import sys
 import json
 import logging
+import time
 
 from ucloud.core import exc
 from ucloud.client import Client
@@ -34,6 +35,33 @@ client = Client({
     "public_key": config["public_key"],
     "private_key": config["private_key"],
 })
+
+
+def wait_task_done():
+    print("⏰正在等待操作完成...")
+    while True:
+        try:
+            resp = client.invoke("GetUK8SImageAccelerate", {
+                "ClusterId": config["cluster_id"],
+            })
+            status = resp["Status"]
+            if status == "Converting" or status == "Deleting":
+                time.sleep(1)
+            elif status == "ConvertError":
+                message = resp["Error"]
+                print(f"❌ 创建加速镜像失败：{message}")
+                return False
+            elif status == "DeleteError":
+                message = resp["Error"]
+                print(f"❌ 删除加速镜像失败：{message}")
+                return False
+            else:
+                return True
+
+        except exc.UCloudException as e:
+            print(f"❌ 等待任务完成失败，错误信息：{e}")
+            sys.exit(1)
+
 
 try:
     need_show_resp = False
@@ -96,8 +124,8 @@ except exc.UCloudException as e:
     sys.exit(1)
 else:
     if need_wait:
-        print("⏰该操作需要等待，请持续使用get命令观察操作执行状态")
-    else:
-        print("✅ 操作成功")
+        if not wait_task_done():
+            sys.exit(1)
+    print("✅ 操作成功")
     if need_show_resp:
         print(json.dumps(resp, indent=4))
