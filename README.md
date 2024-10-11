@@ -79,7 +79,7 @@ config = {
     "RetCode": 0,
     "Enable": true,  // 是否开启了镜像加速
     "NfsReady": true, // 镜像加速使用的UFS是否就绪
-    "AgentReady": true,  // 镜像加速agent是否就绪，如果不就绪，将无法进行查看、预加载、删除等操作。当不就绪时，请检查您的集群中`kube-system/uimgacc-agent`这个Deployment的状态。
+    "AgentReady": true,  // 镜像加速agent是否就绪，如果不就绪，将无法进行查看、预加载、删除等操作。这时请检查您的集群中`kube-system/uimgacc-agent`这个Deployment的状态。
     "Status": "Ready", // 镜像加速状态。有几种枚举值：Ready(正常)，Creating(正在创建目标镜像)，CreateError(创建失败)，Deleting(正在删除)，DeleteError(删除失败)，Unknown(未知，如果agent未就绪或是有其他异常，将会是这个状态)
     "Error": "", // 当创建或删除失败时，这里会显示错误信息
     "Images": [  // 目前已经预加载的镜像列表，在创建和删除过程中，或是agent还没有就绪时，这里会为空
@@ -107,11 +107,16 @@ config = {
 ./venv/bin/python3 uimgacc.py create <original_image> <target_image>
 ```
 
-镜像加速会占据您的UFS空间，如果某个镜像不再使用了，可以进行删除操作：
+一般我们建议`<target_image>`是`<original_image>`加上`-acc`后缀。
+
+镜像加速会占据您的UFS空间，如果某个镜像不再使用了，可以进行删除操作以释放UFS空间：
 
 ```bash
 ./venv/bin/python3 uimgacc.py delete <original_image>
 ```
+
+> [!IMPORTANT]
+> 在删除前请确保没有Pod在使用目标镜像了，强行删除会导致IO错误！
 
 当您不再需要使用镜像加速，使用下面的命令来关闭：
 
