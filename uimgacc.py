@@ -36,33 +36,6 @@ client = Client({
     "private_key": config["private_key"],
 })
 
-
-def wait_task_done():
-    print("⏰正在等待操作完成...")
-    while True:
-        try:
-            resp = client.invoke("GetUK8SImageAccelerate", {
-                "ClusterId": config["cluster_id"],
-            })
-            status = resp["Status"]
-            if status == "Converting" or status == "Deleting":
-                time.sleep(1)
-            elif status == "ConvertError":
-                message = resp["Error"]
-                print(f"❌ 创建加速镜像失败：{message}")
-                return False
-            elif status == "DeleteError":
-                message = resp["Error"]
-                print(f"❌ 删除加速镜像失败：{message}")
-                return False
-            else:
-                return True
-
-        except exc.UCloudException as e:
-            print(f"❌ 等待任务完成失败，错误信息：{e}")
-            sys.exit(1)
-
-
 try:
     need_show_resp = False
     need_wait = False
@@ -118,14 +91,35 @@ try:
     else:
         print(f"❓未知操作：{action}")
         sys.exit(1)
+
     resp = client.invoke(req_action, req)
+
+    if need_wait:
+        print("⏰正在等待操作完成...")
+        while True:
+            resp = client.invoke("GetUK8SImageAccelerate", {
+                "ClusterId": config["cluster_id"],
+            })
+            status = resp["Status"]
+            if status == "Converting" or status == "Deleting":
+                time.sleep(1)
+            elif status == "ConvertError":
+                message = resp["Error"]
+                print(f"❌ 创建加速镜像失败：{message}")
+                sys.exit(1)
+
+            elif status == "DeleteError":
+                message = resp["Error"]
+                print(f"❌ 删除加速镜像失败：{message}")
+                sys.exit(1)
+            else:
+                break
+
+    print("✅ 操作成功")
+
+    if need_show_resp:
+        print(json.dumps(resp, indent=4))
+
 except exc.UCloudException as e:
     print(f"❌ 操作失败，错误信息：{e}")
     sys.exit(1)
-else:
-    if need_wait:
-        if not wait_task_done():
-            sys.exit(1)
-    print("✅ 操作成功")
-    if need_show_resp:
-        print(json.dumps(resp, indent=4))
