@@ -101,9 +101,9 @@ try:
                 "ClusterId": config["cluster_id"],
             })
             status = resp["Status"]
-            if status == "Converting" or status == "Deleting":
+            if status == "Creating" or status == "Deleting":
                 time.sleep(1)
-            elif status == "ConvertError":
+            elif status == "CreateError":
                 message = resp["Error"]
                 print(f"❌ 创建加速镜像失败：{message}")
                 sys.exit(1)

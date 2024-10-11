@@ -14,7 +14,7 @@
 
 - 原始镜像：加速前的镜像。就是需要花费数十分钟才能拉取完毕的超大镜像。
 - 目标镜像：预加载后生成的特殊镜像，只需要几十秒就能拉取完毕。**需要配合镜像加速插件使用。**
-- 预加载：将原始镜像保存到UFS，并生成目标镜像的过程。
+- 创建目标镜像：将原始镜像预加载到UFS，并生成目标镜像的过程。
 - 镜像加速插件：一个特殊的containerd snapshotter，当判断到容器使用了目标镜像，会跳过下载解压过程，并挂载UFS读取其中的镜像数据。
 
 下面，我们将引导您如何在UK8S中开启镜像加速，基于原始镜像生成目标镜像，最后使用目标镜像以实现镜像加速。
@@ -71,13 +71,43 @@ config = {
 ./venv/bin/python3 uimgacc.py get
 ```
 
-当您需要对某个镜像进行加速，需要将其预加载到UFS中，执行下面的命令：
+`get`命令会输出JSON，下面是一个输出实例以及对字段的解释：
+
+```javascript
+{
+    "Action": "GetUK8SImageAccelerateResponse",
+    "RetCode": 0,
+    "Enable": true,  // 是否开启了镜像加速
+    "NfsReady": true, // 镜像加速使用的UFS是否就绪
+    "AgentReady": true,  // 镜像加速agent是否就绪，如果不就绪，将无法进行查看、预加载、删除等操作。当不就绪时，请检查您的集群中`kube-system/uimgacc-agent`这个Deployment的状态。
+    "Status": "Ready", // 镜像加速状态。有几种枚举值：Ready(正常)，Creating(正在创建目标镜像)，CreateError(创建失败)，Deleting(正在删除)，DeleteError(删除失败)，Unknown(未知，如果agent未就绪或是有其他异常，将会是这个状态)
+    "Error": "", // 当创建或删除失败时，这里会显示错误信息
+    "Images": [  // 目前已经预加载的镜像列表，在创建和删除过程中，或是agent还没有就绪时，这里会为空
+        {
+            "OriginalImage": "uhub.service.ucloud.cn/testuk8s-wenqian/bigfile:latest",  // 原始镜像
+            "TargetImage": "uhub.service.ucloud.cn/testuk8s-wenqian/bigfile:latest-acc", // 目标镜像
+            "Size": 16113099111, // 原始镜像大小
+            "Layers": 2  // 镜像层数
+        },
+        {
+            "OriginalImage": "uhub.service.ucloud.cn/testuk8s-wenqian/nginx:latest",
+            "TargetImage": "uhub.service.ucloud.cn/testuk8s-wenqian/nginx:latest-acc",
+            "Size": 138967144,
+            "Layers": 5
+        }
+    ],
+    "SubnetId": "xxxx",  // 镜像加速UFS的子网ID
+    "NfsAddr": "xxxx"  // 镜像加速UFS的挂载点
+}
+```
+
+当您需要对某个镜像进行加速，需要进行创建操作：
 
 ```bash
 ./venv/bin/python3 uimgacc.py create <original_image> <target_image>
 ```
 
-镜像加速会占据您的UFS空间，如果某个镜像不再使用了，可以通过`delete`命令来删除它以释放UFS：
+镜像加速会占据您的UFS空间，如果某个镜像不再使用了，可以进行删除操作：
 
 ```bash
 ./venv/bin/python3 uimgacc.py delete <original_image>
